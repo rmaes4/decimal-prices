@@ -77,7 +77,7 @@ class DecimalPricesKeyListener implements KeyListener {
         if(e.getKeyCode() == KeyEvent.VK_ENTER && isQuantityInput()) {
             // intercept quantity entry before it is sent to the server
             convertQuantity();
-        } else if(e.getKeyCode() == KeyEvent.VK_PERIOD && isQuantityInput()) {
+        } else if((e.getKeyCode() == KeyEvent.VK_PERIOD || e.getKeyCode() == KeyEvent.VK_DECIMAL) && isQuantityInput()) {
             // allow typing of decimal in quantity input field which is otherwise not possible to do
             addDecimalToInputText();
         }
