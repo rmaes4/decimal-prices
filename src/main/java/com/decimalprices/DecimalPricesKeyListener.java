@@ -8,6 +8,7 @@ import net.runelite.client.input.KeyListener;
 
 import javax.inject.Inject;
 import java.awt.event.KeyEvent;
+import java.lang.Math;
 
 @Slf4j
 class DecimalPricesKeyListener implements KeyListener {
@@ -56,7 +57,7 @@ class DecimalPricesKeyListener implements KeyListener {
         break;
     }
     // cast the double to an int, truncating anything after the decimal in the process
-    int truncProduct = (int) product;
+    int truncProduct = (int) Math.ceil(product);
     // set the newly converted integer before it is sent to the server
     client.setVarcStrValue(VarClientStr.INPUT_TEXT, String.valueOf(truncProduct));
   }
