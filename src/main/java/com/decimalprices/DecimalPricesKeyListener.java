@@ -35,30 +35,10 @@ class DecimalPricesKeyListener implements KeyListener {
     if (!lowerInputText.matches("[0-9]+\\.[0-9]+[kmb]")) {
       return;
     }
-    // get the unit from the end of string, k (thousands), m (millions) or b (billions)
-    char unit = lowerInputText.charAt(lowerInputText.length() - 1);
-    // get the number xx.xx without the unit and parse as a double
-    double amount = Double.parseDouble(lowerInputText.substring(0, lowerInputText.length() - 1));
-    // multiply the number and the unit
-    double product;
-    switch (unit) {
-      case 'k':
-        product = amount * 1000;
-        break;
-      case 'm':
-        product = amount * 1000000;
-        break;
-      case 'b':
-        product = amount * 1000000000;
-        break;
-      default:
-        product = 0;
-        break;
-    }
-    // cast the double to an int, truncating anything after the decimal in the process
-    int truncProduct = (int) product;
+    // convert the decimal input to an equivalent integer
+    String transformedPrice = DecimalPricesUtil.transformDecimalPrice(lowerInputText);
     // set the newly converted integer before it is sent to the server
-    client.setVarcStrValue(VarClientStr.INPUT_TEXT, String.valueOf(truncProduct));
+    client.setVarcStrValue(VarClientStr.INPUT_TEXT, transformedPrice);
   }
 
   private void addDecimalToInputText() {
