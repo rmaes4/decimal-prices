@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.VarClientInt;
 import net.runelite.api.VarClientStr;
+import net.runelite.client.callback.ClientThread;
 import net.runelite.client.input.KeyListener;
 
 import javax.inject.Inject;
@@ -14,6 +15,9 @@ class DecimalPricesKeyListener implements KeyListener {
 
   @Inject
   private Client client;
+
+  @Inject
+  private ClientThread clientThread;
 
   private boolean isQuantityInput() {
         /*
@@ -38,7 +42,7 @@ class DecimalPricesKeyListener implements KeyListener {
     // convert the decimal input to an equivalent integer
     String transformedPrice = DecimalPricesUtil.transformDecimalPrice(lowerInputText);
     // set the newly converted integer before it is sent to the server
-    client.setVarcStrValue(VarClientStr.INPUT_TEXT, transformedPrice);
+    clientThread.invoke(() -> {client.setVarcStrValue(VarClientStr.INPUT_TEXT, transformedPrice);});
   }
 
   private void addDecimalToInputText() {
@@ -52,7 +56,7 @@ class DecimalPricesKeyListener implements KeyListener {
       return;
     }
     String newInputText = currentInputText + ".";
-    client.setVarcStrValue(VarClientStr.INPUT_TEXT, newInputText);
+    clientThread.invoke(() -> {client.setVarcStrValue(VarClientStr.INPUT_TEXT, newInputText);});
   }
 
   @Override
