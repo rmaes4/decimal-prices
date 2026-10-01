@@ -23,12 +23,14 @@ class DecimalPricesKeyListener implements KeyListener {
         /*
         Determine user is typing into a quantity input field.
         Known types:
-        2 Add friend input
-        3 Delete friend input
-        6 Send private message input
-        7 Enter a quantity input (ge, bank, trade, coffer etc.)
+        2  Add friend input
+        3  Delete friend input
+        6  Send private message input
+        7  Enter a quantity input (ge, bank, trade, coffer etc.)
+        30 Enter a price input
          */
-    return client.getVarcIntValue(VarClientInt.INPUT_TYPE) == 7;
+    final int inputType = client.getVarcIntValue(VarClientInt.INPUT_TYPE);
+    return inputType == 7 || inputType == 30;
   }
 
   private void convertQuantity() {
