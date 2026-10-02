@@ -6,37 +6,63 @@ import org.junit.Test;
 
 public class DecimalPricesUnitTest {
 
-  @Test
-  public void testConversion() {
-    // generic tests
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("1.2k"), String.valueOf(1_200));
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("1.2m"), String.valueOf(1_200_000));
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("1.2b"), String.valueOf(1_200_000_000));
+  private final static DecimalPricesInputMode B = DecimalPricesInputMode.MAX_BILLIONS;
+  private final static DecimalPricesInputMode T = DecimalPricesInputMode.MAX_TRILLIONS;
 
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("32m"), String.valueOf(32_000_000));
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("32.0m"), String.valueOf(32_000_000));
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("32.1m"), String.valueOf(32_100_000));
-    // previously failing due to floating point imprecision
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("32.2m"), String.valueOf(32_200_000));
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("32.3m"), String.valueOf(32_300_000));
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("32.4m"), String.valueOf(32_400_000));
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("32.5m"), String.valueOf(32_500_000));
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("32.6m"), String.valueOf(32_600_000));
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("32.7m"), String.valueOf(32_700_000));
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("32.8m"), String.valueOf(32_800_000));
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("32.9m"), String.valueOf(32_900_000));
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("32.333333m"), String.valueOf(32_333_333));
-    // testing max num
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("2.147483647b"), String.valueOf(2_147_483_647));
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("2.147483648b"), String.valueOf(2_147_483_647));
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("9b"), String.valueOf(2_147_483_647));
-    // testing small numbers
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("0k"), String.valueOf(0));
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("0m"), String.valueOf(0));
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("0b"), String.valueOf(0));
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("0.000001k"), String.valueOf(0));
-
-    assertEquals(DecimalPricesUtil.transformDecimalPrice("1.234567890b"), String.valueOf(1_234_567_890));
+  private void assertPrice(String input, DecimalPricesInputMode mode, long expected) {
+    assertEquals(String.valueOf(expected), DecimalPricesUtil.transformDecimalPrice(input, mode));
   }
 
+  @Test
+  public void testBasicConversions() {
+    assertPrice("1.2k", B, 1_200);
+    assertPrice("1.2m", B, 1_200_000);
+    assertPrice("1.2b", B, 1_200_000_000);
+    assertPrice("1.3t", T, 1_300_000_000_000L);
+
+    assertPrice("1.234567890b", B, 1_234_567_890);
+    assertPrice("1.234567890t", T, 1_234_567_890_000L);
+
+    assertPrice("1.5M", B, 1_500_000);
+    assertPrice("2T", T, 2_000_000_000_000L);
+
+    assertPrice("2.k", B, 2_000);
+  }
+
+  @Test
+  public void testFloatingPointPrecision() {
+    // previously failing due to floating point imprecision
+    assertPrice("32m", B, 32_000_000);
+    assertPrice("32.0m", B, 32_000_000);
+    assertPrice("32.1m", B, 32_100_000);
+    assertPrice("32.2m", B, 32_200_000);
+    assertPrice("32.3m", B, 32_300_000);
+    assertPrice("32.4m", B, 32_400_000);
+    assertPrice("32.5m", B, 32_500_000);
+    assertPrice("32.6m", B, 32_600_000);
+    assertPrice("32.7m", B, 32_700_000);
+    assertPrice("32.8m", B, 32_800_000);
+    assertPrice("32.9m", B, 32_900_000);
+    assertPrice("32.333333m", B, 32_333_333);
+  }
+
+  @Test
+  public void testMaxLimitsClamping() {
+    assertPrice("2.147483647b", B, 2_147_483_647);
+    assertPrice("2.147483648b", B, 2_147_483_647);
+    assertPrice("9b", B, 2_147_483_647);
+
+    assertPrice("2.149631130647t", T, 2_149_631_130_647L);
+    assertPrice("2.149631130648t", T, 2_149_631_130_647L);
+    assertPrice("3t", T, 2_149_631_130_647L);
+  }
+
+  @Test
+  public void testSmallNumbersAndZeroes() {
+    assertPrice("0k", B, 0);
+    assertPrice("0m", B, 0);
+    assertPrice("0b", B, 0);
+    assertPrice("0t", T, 0);
+    assertPrice("0.000001k", B, 0);
+  }
 }
